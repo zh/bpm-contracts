@@ -22,10 +22,10 @@ yarn install
 yarn chain
 ```
 
-> (optional) in a second terminal window, deploy your contract:
+> in a second terminal window, deploy your contract:
 
 ```bash
-cd multi-evm
+cd bpm-contracts
 yarn deploy
 
 // deploy on another blockchains
