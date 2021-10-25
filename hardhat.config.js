@@ -12,8 +12,8 @@ const defaultNetwork = process.env.NETWORK || "localhost";
 const deployerAddress = process.env.DEPLOYER;
 const infuraKey = process.env.INFURA_KEY;
 
-const coinName = "ETH"; // change to "BCH", "FTM", "DEV" etc.
-const tokenName = "AwesomeToken";
+const coinName = "BCH"; // change to "BCH", "FTM", "DEV" etc.
+const tokenName = "SmartLock";
 
 function mnemonic(network="mainnet") {
   try {
