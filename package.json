@@ -6,12 +6,12 @@
     "chain": "hardhat node --network hardhat --no-deploy",
     "compile": "hardhat compile",
     "test": "hardhat test --network hardhat",
-    "watch": "node scripts/watch.js",
     "deploy": "hardhat deploy",
     "accounts": "hardhat accounts",
     "balance": "hardhat balance",
     "fund": "hardhat fund",
-    "mint": "hardhat mint"
+    "mint": "hardhat mint",
+    "serve": "node scripts/server.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
     "@openzeppelin/contracts": "^4.3.1",
     "bip39": "^3.0.4",
     "chai": "^4.3.4",
+    "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.4.0",
     "ethereumjs-wallet": "^0.6.3",
     "ethers": "^5.4.6",
@@ -31,7 +32,9 @@
     "ipfs-http-client": "^52.0.3",
     "node-watch": "^0.7.1",
     "qrcode-terminal": "^0.12.0",
-    "ramda": "^0.27.1",
-    "dotenv": "^10.0.0"
+    "ramda": "^0.27.1"
+  },
+  "dependencies": {
+    "koa": "^2.13.4"
   }
 }

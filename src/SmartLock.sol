@@ -4,18 +4,17 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SmartLock is Ownable {
-    bool private _locked;
     bool private _for_rent;
     address private _renter;
     // deadline = now + period parameter
     uint256 private _deadline;
-
-    event State(address user, string state);
+    // price per hour;
+    uint256 private _price;
 
     constructor() {
         _for_rent = true;
-        _locked = false;
         _deadline = block.timestamp;
+        _price = 0;
     }
 
     // ownership related functions
@@ -48,7 +47,11 @@ contract SmartLock is Ownable {
     }
 
     function _rent(address _user, uint256 _period) internal {
-        require(_period <= 24 hours, "Smart Lock: more then 24 hours rent");
+        require(_price > 0, "Smart Lock: cannot rent for nothing");
+        require(
+            _period >= 5 minutes && _period <= 24 hours,
+            "Smart Lock: rent between 5 minutes and 24 hours"
+        );
         uint256 _now = block.timestamp;
         if (_now >= _deadline) {
             _for_rent = true;
@@ -56,7 +59,6 @@ contract SmartLock is Ownable {
         require(_for_rent == true, "Smart Lock: already rent");
         _for_rent = false;
         _renter = _user;
-        setState(false);
         _deadline = _now + _period;
     }
 
@@ -68,8 +70,16 @@ contract SmartLock is Ownable {
     function _reset() internal {
         _for_rent = true;
         _renter = address(0);
-        setState(false);
         _deadline = block.timestamp;
+    }
+
+    function setPrice(uint256 _price_per_hour) external onlyOwner {
+        require(_for_rent == true, "Smart Lock: no price changes when rent");
+        _price = _price_per_hour;
+    }
+
+    function price() external view returns (uint256) {
+        return _price;
     }
 
     function setRenter(address _user, uint256 _period) external onlyOwner {
@@ -83,7 +93,11 @@ contract SmartLock is Ownable {
         }
     }
 
-    function rent(uint256 _period) external {
+    function rent(uint256 _period) external payable {
+        require(
+            msg.value >= (_price * _period) / 3600, // price_per_hour * period_in_hours
+            "Smart Lock: not enough for rent"
+        );
         _rent(msg.sender, _period);
     }
 
@@ -99,26 +113,15 @@ contract SmartLock is Ownable {
         return _deadline - _now;
     }
 
-    // hardware related functions
-
-    function locked() external view returns (bool) {
-        return _locked;
+    function balanceOf() external view returns (uint256) {
+        return address(this).balance;
     }
 
-    function setState(bool _state) internal {
-        _locked = _state;
-        if (_locked == true) {
-            emit State(msg.sender, "close");
-        } else {
-            emit State(msg.sender, "open");
-        }
-    }
-
-    function open() external onlyRenter beforeDeadline {
-        setState(false);
-    }
-
-    function close() external onlyRenter beforeDeadline {
-        setState(true);
+    function withdraw(uint256 amount) external onlyOwner {
+        require(amount > 0, "amount of ETH must be > 0");
+        uint256 exampleBalance = address(this).balance;
+        require(exampleBalance >= amount, "Contract does not own enough funds");
+        (bool sent, ) = payable(msg.sender).call{value: amount}("");
+        require(sent, "Funds transfer failed");
     }
 }
